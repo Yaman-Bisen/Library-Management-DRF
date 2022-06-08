@@ -1,1 +1,66 @@
-Hello Student
+{% include 'LibraryManagement_App/header.html' %}
+<!--TITLE-->
+
+    <div class="content">
+        <h2 class="logo">Library Management</h2>
+        <div class="container" style="margin-top: -20%;">
+            <div class="row mb-1">
+                <div class="col-md-11"></div>
+                <div class="col-md-1"><a href="/student_logout/" class="btn btn-warning">logout</a></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" id="table_container">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                type: "GET",
+                url: "/api/bookDetails/",
+                headers : {'X-CSRFToken' : getCookie('csrftoken')},
+                mode: 'same-origin',
+                success: function (result) 
+                {
+                    var table_rows = '';
+                    result.forEach(element => {
+                        console.log(element);
+                        table_rows += `
+                            <tr>
+                                <th scope="col">${element.book_name}</th>
+                                <th scope="col">${element.author_name}</th>
+                                <th scope="col">${element.price}</th>
+                                <th scope="col">${element.qunatity}</th>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('table_container').innerHTML = String.raw`
+                        <table id="table_id" class="table table-light">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Book Name</th>
+                                <th scope="col">Author Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                ${table_rows}
+                            </tbody>
+                            </table>
+                    `;                   
+                },
+                error: function (error) {
+                    console.log('error');
+                },
+            });
+        });
+        
+    </script>
+</body>
+
+</html>

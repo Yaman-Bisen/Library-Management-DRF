@@ -1,41 +1,364 @@
 {% include 'LibraryManagement_App/header.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script> 
-</head>
-<body>
-    <button onclick="callApiTest()">Test</button>
+<!--TITLE-->
+
+    <div class="content">
+        <h2 class="logo">Library Management</h2>
+        
+        <div class="container" style="margin-top: -20%;">
+            <div class="row mb-1">
+                <div class="col-md-10"></div>
+                <div class="col-md-1"> <button style="width: 160px;" onclick="clearAddModal()" class="searchButton"
+                    data-bs-toggle="modal" data-bs-target="#addBookModal" href="#">Add Book</button></div>
+                <div class="col-md-1"><a href="/admin_logout/" class="btn btn-warning">logout</a></div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12" id="table_container">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <!-- Add book Modal -->
+    <div class="modal fade show" id="addBookModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content   bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Book</h5>
+                    <button type="button" onclick="closeAddBookModal()" id="closeAddModal" class="btn-close" style="color:white;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><label for="book_name">Book Name : </label></p>
+                    <p><input type="text" id="book_name" class="form-control"></p>
+                    <p><span id="book_name_error" style="color:red;"></span></p>
+                    
+                    <p><label for="author_name">Author Name : </label></p>
+                    <p><input type="text" id="author_name" class="form-control"></p>
+                    <p><span id="author_name_error" style="color:red;"></span></p>
+
+                    <p><label for="price">Price : </label></p>
+                    <p><input type="number" id="price" class="form-control"></p>
+                    <p><span id="price_error" style="color:red;"></span></p>
+
+                    <p><label for="quantity">Quantity : </label></p>
+                    <p><input type="number" id="quantity" class="form-control"></p>
+                    <p><span id="quantity_error" style="color:red;"></span></p>
+
+                    <p><label for="date_of_adding">Date for adding : </label></p>
+                    <p><input type="date" id="date_of_adding" class="form-control"></p>
+                    <p><span id="date_of_adding_error" style="color:red;"></span></p>
+                </div>
+                <div class="modal-footer text-center mx-auto">
+                    <button type="button" onclick="addBookFunction()" class="btn btn-warning">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Edit book Modal -->
+    <div class="modal fade show" id="editBookModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content   bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Book</h5>
+                    <button type="button" onclick="closeEditBookModal()" id="closeEditModal" class="btn-close" style="color:white;" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" value="" id="hidden_id">
+                    <p><label for="edit_book_name">Book Name : </label></p>
+                    <p><input type="text" id="edit_book_name" class="form-control"></p>
+                    <p><span id="edit_book_name_error" style="color:red;"></span></p>
+                    
+                    <p><label for="edit_author_name">Author Name : </label></p>
+                    <p><input type="text" id="edit_author_name" class="form-control"></p>
+                    <p><span id="edit_author_name_error" style="color:red;"></span></p>
+
+                    <p><label for="edit_price">Price : </label></p>
+                    <p><input type="number" id="edit_price" class="form-control"></p>
+                    <p><span id="edit_price_error" style="color:red;"></span></p>
+
+                    <p><label for="edit_quantity">Quantity : </label></p>
+                    <p><input type="number" id="edit_quantity" class="form-control"></p>
+                    <p><span id="edit_quantity_error" style="color:red;"></span></p>
+
+                    <p><label for="edit_date_of_adding">Date for adding : </label></p>
+                    <p><input type="date" id="edit_date_of_adding" class="form-control"></p>
+                    <p><span id="edit_date_of_adding_error" style="color:red;"></span></p>
+                </div>
+                <div class="modal-footer text-center mx-auto">
+                    <button type="button" onclick="editBookFunction()" class="btn btn-warning">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <script>
-        function callApiTest()
+//////////////////////////////////// Add Book
+
+        $("#book_name").keyup(function () {
+            $('#book_name_error').html('');
+        });
+        $("#author_name").keyup(function () {
+            $('#author_name_error').html('');
+        });
+        $("#price").keyup(function () {
+            $('#price_error').html('');
+        });
+        $("#quantity").keyup(function () {
+            $('#quantity_error').html('');
+        });
+        $("#date_of_adding").keyup(function () {
+            $('#date_of_adding_error').html('');
+        });
+        function addBookFunction()
+        {
+            var book_name = $('#book_name').val();
+            var author_name = $('#author_name').val();
+            var price = $('#price').val();
+            var qunatity = $('#quantity').val();
+            var date_of_adding = $('#date_of_adding').val();
+
+            if (book_name == "") {
+                $('#book_name_error').html('Please enter book name...');
+            }
+            else if (author_name == "") {
+                $('#author_name_error').html('Please enter author name...');
+            }
+            else if (price == "") {
+                $('#price_error').html('Please enter book price...');
+            }
+            else if (qunatity == "") {
+                $('#quantity_error').html('Please enter book quantity...');
+            }
+            else if (date_of_adding == "") {
+                $('#date_of_adding_error').html('Please enter date of addming the book...');
+            }
+            else
+            {
+                console.log(book_name,author_name, price, qunatity, date_of_adding);
+                var doa = new Date(date_of_adding);
+                $.ajax({
+                    method : "POST",
+                    url : "/api/bookDetails/",
+                    data : {
+                        'book_name':book_name,
+                        'author_name': author_name,
+                        'price':parseFloat(price),
+                        'qunatity':parseInt(qunatity),
+                        'date_added': `${doa.getFullYear()}-${doa.getMonth()}-${doa.getDate()}`,
+                    },
+                    headers : {'X-CSRFToken' : getCookie('csrftoken')},
+                    mode: 'same-origin',
+                    success : function(response)
+                    {
+                        Swal.fire("Success!", "Book Added Successfully !", "success")
+                        getBookDetails();
+                        $( "#closeAddModal" ).trigger( "click" );
+                    },
+                    error : function(error)
+                    {
+                        Swal.fire("Error!", "Something went wrong !", "error")
+                    }
+                });
+            }
+        }
+
+
+        function closeAddBookModal(){$('#addBookModal').toggle();};
+        function closeEditBookModal(){$('#editBookModal').toggle();};
+
+        function clearAddModal(){
+            $('#addBookModal').toggle();
+            $('#book_name').val('');
+            $('#book_name_error').html('');
+            $('#author_name').val('');
+            $('#author_name_error').html('');
+            $('#price').val('');
+            $('#price_error').html('');
+            $('#quantity').val('');
+            $('#quantity_error').html('');
+            $('#date_of_adding').val('');
+            $('#date_of_adding_error').html('');
+        }
+
+///////////////////////////////////// Get Book List
+        function getBookDetails()
         {
             $.ajax({
-                type: "PUT",
-                url: "http://localhost:8040/api/bookDetails/1/",
-                data: {
-                    'id':'1',
-                    'book_name':'C-Language',
-                    'author_name':'Denis Ritchy',
-                    'price':'100',
-                    'qunatity':'10',
-                    'date_added':'2022-06-08'
-                },
+                type: "GET",
+                url: "/api/bookDetails/",
                 headers : {'X-CSRFToken' : getCookie('csrftoken')},
                 mode: 'same-origin',
                 success: function (result) 
                 {
-                    console.log(result);
+                    var table_rows = '';
+                    result.forEach(element => {
+                        table_rows += `
+                            <tr>
+                                <th scope="col">${element.book_name}</th>
+                                <th scope="col">${element.author_name}</th>
+                                <th scope="col">${element.price}</th>
+                                <th scope="col">${element.qunatity}</th>
+                                <th scope="col">${element.date_added}</th>
+                                <th scope="col"><span onclick="updateBook('${element.id}','${element.book_name}','${element.author_name}','${element.price}','${element.qunatity}','${element.date_added}')" data-bs-toggle="modal" data-bs-target="#editBookModal" class="btn btn-primary"><i  class="fa fa-edit"></i></span>
+                                    <span class="btn btn-danger" onclick="deleteBook('${element.id}')"><i class="fa fa-trash"></i></span></th>
+                            </tr>
+                        `;
+                    });
+                    document.getElementById('table_container').innerHTML = String.raw`
+                        <table id="table_id" class="table table-light">
+                            <thead class="bg-dark">
+                            <tr>
+                                <th scope="col">Book Name</th>
+                                <th scope="col">Author Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Date Added</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                ${table_rows}
+                            </tbody>
+                            </table>
+                    `;                   
                 },
                 error: function (error) {
                     console.log('error');
                 },
             });
         }
+        $(document).ready(function(){
+            getBookDetails();
+        });
+       
+
+/////////////////////////////////////////////////////// Update Book 
+
+
+        $("#edit_book_name").keyup(function () {
+            $('#edit_book_name_error').html('');
+        });
+        $("#edit_author_name").keyup(function () {
+            $('#edit_author_name_error').html('');
+        });
+        $("#edit_price").keyup(function () {
+            $('#edit_price_error').html('');
+        });
+        $("#edit_quantity").keyup(function () {
+            $('#edit_quantity_error').html('');
+        });
+        $("#edit_date_of_adding").keyup(function () {
+            $('#edit_date_of_adding_error').html('');
+        });
+        
+        function updateBook(id, book_name, author_name, price, qunatity, date_added)
+        {
+            $('#editBookModal').toggle();
+            $('#edit_book_name').val(book_name);
+            $('#edit_author_name').val(author_name);
+            $('#edit_price').val(price);
+            $('#edit_quantity').val(qunatity);
+            $('#edit_date_of_adding').val(date_added);
+            $('#hidden_id').val(id);
+        }
+
+        function editBookFunction()
+        {
+            var book_name = $('#edit_book_name').val();
+            var author_name = $('#edit_author_name').val();
+            var price = $('#edit_price').val();
+            var qunatity = $('#edit_quantity').val();
+            var date_of_adding = $('#edit_date_of_adding').val();
+            var book_id = $('#hidden_id').val();
+
+            console.log(book_name, author_name, price, qunatity, date_of_adding, book_id);
+
+            if (book_name == "") {
+                $('#edit_book_name_error').html('Please enter book name...');
+            }
+            else if (author_name == "") {
+                $('#edit_author_name_error').html('Please enter author name...');
+            }
+            else if (price == "") {
+                $('#edit_price_error').html('Please enter book price...');
+            }
+            else if (qunatity == "") {
+                $('#edit_quantity_error').html('Please enter book quantity...');
+            }
+            else if (date_of_adding == "") {
+                $('#edit_date_of_adding_error').html('Please enter date of addming the book...');
+            }
+            else
+            {
+                var doa = new Date(date_of_adding);
+                $.ajax({
+                    method : "PUT",
+                    url : `/api/bookDetails/${book_id}/`,
+                    data : {
+                        'book_name':book_name,
+                        'author_name': author_name,
+                        'price':parseFloat(price),
+                        'qunatity':parseInt(qunatity),
+                        'date_added': `${doa.getFullYear()}-${doa.getMonth()}-${doa.getDate()}`,
+                    },
+                    headers : {'X-CSRFToken' : getCookie('csrftoken')},
+                    mode: 'same-origin',
+                    success : function(response)
+                    {
+                        Swal.fire("Success!", "Book Updated Successfully !", "success")
+                        getBookDetails();
+                        $( "#closeEditModal" ).trigger( "click" );
+                    },
+                    error : function(error)
+                    {
+                        Swal.fire("Error!", "Something went wrong !", "error")
+                    }
+                });
+            }
+        }
+
+
+        ///////////////////////////////////////////// Delete Book 
+
+        function deleteBook(id)
+        {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => 
+            {
+                if (result.isConfirmed) 
+                {
+                    $.ajax({
+                        method : "DELETE",
+                        url : `/api/bookDetails/${id}/`,
+                        headers : {'X-CSRFToken' : getCookie('csrftoken')},
+                        mode: 'same-origin',
+                        success : function(response)
+                        {
+                            Swal.fire("Success!", "Book Deleted Successfully !", "success")
+                            getBookDetails();
+                        },
+                        error : function(error)
+                        {
+                            Swal.fire("Error!", "Something went wrong !", "success")
+                        }
+                    });
+                }
+            });
+        }
     </script>
 </body>
+
 </html>

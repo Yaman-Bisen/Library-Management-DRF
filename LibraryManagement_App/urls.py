@@ -7,4 +7,6 @@ urlpatterns = [
     path('student_signup/',student_signup,name="student_signup"),
     path('admin_dashboard/',admin_dashboard,name="admin_dashboard"),
     path('student_dashboard/',student_dashboard,name="student_dashboard"),
+    path('admin_logout/',admin_logout,name="admin_logout"),
+    path('student_logout/',student_logout,name="student_logout"),
 ]

@@ -1,7 +1,7 @@
 import traceback
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
-from requests import request
+from requests import request, session
 from django.http import HttpResponse, JsonResponse
 from .models import *
 import requests
@@ -101,3 +101,21 @@ def student_dashboard(request):
             return redirect('/')
     except:
         pass
+
+def admin_logout(request):
+    try:
+        if request.session.get('admin_email'):
+            del request.session['admin_email']
+        return redirect('/')
+    except:
+        return redirect('/')
+
+
+def student_logout(request):
+    try:
+        if request.session.get('student_email'):
+            del request.session['student_email']
+        return redirect('/')
+    except:
+        return redirect('/')
+
