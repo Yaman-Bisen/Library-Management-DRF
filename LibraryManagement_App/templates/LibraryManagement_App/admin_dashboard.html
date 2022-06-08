@@ -1,0 +1,41 @@
+{% include 'LibraryManagement_App/header.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script> 
+</head>
+<body>
+    <button onclick="callApiTest()">Test</button>
+
+    <script>
+        function callApiTest()
+        {
+            $.ajax({
+                type: "PUT",
+                url: "http://localhost:8040/api/bookDetails/1/",
+                data: {
+                    'id':'1',
+                    'book_name':'C-Language',
+                    'author_name':'Denis Ritchy',
+                    'price':'100',
+                    'qunatity':'10',
+                    'date_added':'2022-06-08'
+                },
+                headers : {'X-CSRFToken' : getCookie('csrftoken')},
+                mode: 'same-origin',
+                success: function (result) 
+                {
+                    console.log(result);
+                },
+                error: function (error) {
+                    console.log('error');
+                },
+            });
+        }
+    </script>
+</body>
+</html>
